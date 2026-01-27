@@ -1,0 +1,43 @@
+.visualization-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #ddd;
+}
+
+.nodeset-selector {
+  display: flex;
+  align-items: center;
+}
+
+.nodeset-selector label {
+  margin-right: 8px;
+}
+
+.nodeset-selector select {
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.nodeset-info {
+  margin-left: 8px;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.view-mode-switcher button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.view-mode-switcher button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
