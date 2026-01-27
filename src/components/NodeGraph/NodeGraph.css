@@ -1,0 +1,6 @@
+.node-graph {
+  width: 100%;
+  height: 600px; /* Adjust as needed */
+  border: 1px solid #ddd;
+  background-color: #fff;
+}
