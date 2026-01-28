@@ -5,7 +5,7 @@ import FileImport from './components/FileImport/FileImport';
 import { FileImportHandle } from './components/FileImport/FileImport';
 import NodeTree from './components/NodeTree/NodeTree';
 import DetailPanel from './components/DetailPanel/DetailPanel';
-import { NodesetMetadata, OpcUaNode, OpcUaNodeset, ImportError, NamespaceConflictStrategy } from '@/types';
+import { OpcUaNode, OpcUaNodeset, ImportError, NamespaceConflictStrategy } from '@/types';
 import './App.css';
 
 function App() {
@@ -14,7 +14,7 @@ function App() {
   const fileImportRef = useRef<FileImportHandle>(null);
   const [selectedNode, setSelectedNode] = useState<OpcUaNode | null>(null);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
-  const handleNodesetLoaded = (nodeset: OpcUaNodeset, _metadata: NodesetMetadata) => {
+  const handleNodesetLoaded = (nodeset: OpcUaNodeset) => {
     setNodesets((prev) => {
       const updated = [...prev, nodeset];
       setActiveNodeset(nodeset);

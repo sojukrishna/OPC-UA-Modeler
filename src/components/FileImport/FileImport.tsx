@@ -1,9 +1,17 @@
 import { IxButton, IxCard, IxCardContent } from '@siemens/ix-react';
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { fileImportService } from '@/services/file-import.service';
 import { Namespace, NodesetMetadata, OpcUaNodeset } from '@/types/opcua.types';
 import { ImportError, NamespaceConflictStrategy, ValidationResult,ErrorMessages } from '@/types/import.types';
 import './FileImport.css';
+
+type WebkitFileSystemEntry = {
+  isDirectory: boolean;
+};
+
+type WebkitDataTransferItem = DataTransferItem & {
+  webkitGetAsEntry?: () => WebkitFileSystemEntry | null;
+};
 
 interface FileImportProps {
   onNodesetLoaded: (nodeset: OpcUaNodeset, metadata: NodesetMetadata) => void;
@@ -126,28 +134,28 @@ const FileImport = forwardRef<FileImportHandle, FileImportProps>(({ onNodesetLoa
     }
   }, []);
 
-  const persistRecentFiles = (entries: RecentFileEntry[]) => {
+  const persistRecentFiles = useCallback((entries: RecentFileEntry[]) => {
     setRecentFiles(entries);
     try {
       localStorage.setItem(RECENT_FILES_KEY, JSON.stringify(entries));
     } catch (err) {
       console.warn('Failed to save recent files', err);
     }
-  };
+  }, []);
 
-  const addNotification = (notification: Notification) => {
+  const addNotification = useCallback((notification: Notification) => {
     setNotifications((prev) => [notification, ...prev].slice(0, 5));
-  };
+  }, []);
 
-  const removeNotification = (id: string) => {
+  const removeNotification = useCallback((id: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
-  };
+  }, []);
 
-  const handleBrowseClick = () => {
+  const handleBrowseClick = useCallback(() => {
     fileInputRef.current?.click();
-  };
+  }, []);
 
-  const handleFiles = async (files: FileList | File[]) => {
+  const handleFiles = useCallback(async (files: FileList | File[]) => {
     if (!files || files.length === 0) return;
 
     setLoading(true);
@@ -269,7 +277,19 @@ const FileImport = forwardRef<FileImportHandle, FileImportProps>(({ onNodesetLoa
       setProgress(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
-  };
+  }, [
+    acceptedFormats,
+    addNotification,
+    loadedChecksums,
+    loadedNodesets,
+    maxFileSize,
+    namespaceConflictStrategy,
+    onError,
+    onNodesetLoaded,
+    persistRecentFiles,
+    recentFiles,
+    userMaxFileSizeMB,
+  ]);
 
   useImperativeHandle(ref, () => ({
     openFileDialog: () => fileInputRef.current?.click(),
@@ -298,7 +318,7 @@ const FileImport = forwardRef<FileImportHandle, FileImportProps>(({ onNodesetLoa
     const items = event.dataTransfer.items;
     if (items) {
       for (const item of Array.from(items)) {
-        const entry = (item as any).webkitGetAsEntry?.();
+        const entry = (item as WebkitDataTransferItem).webkitGetAsEntry?.();
         if (entry && entry.isDirectory) {
           addNotification({ id: `folder-drop-${Date.now()}`, type: 'warning', message: 'Folder drop is not supported. Please drop XML files only.' });
           return;

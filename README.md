@@ -97,7 +97,22 @@ This viewer supports OPC UA Nodeset2 XML format with the following node types:
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, testing, and PR guidelines.
+
+## Packaging / Distribution
+
+This project can be packaged as an npm tarball (useful for sharing a reproducible release artifact):
+
+```bash
+npm pack
+```
+
+This produces a `*.tgz` file which can be installed locally, for example:
+
+```bash
+npm install -g ./opc-ua-modeler-0.1.0.tgz
+opc-ua-modeler --port 5173
+```
 
 
 ## Acknowledgments

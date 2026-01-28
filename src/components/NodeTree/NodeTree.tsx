@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { OpcUaNode, NodeClass, ParsedNodeset } from '../../types/opcua.types';
 import './NodeTree.css';
 
@@ -70,7 +70,7 @@ function NodeTree({
     setFilteredNodes(filterNodes(nodesetData.rootNodes));
   }, [nodesetData.rootNodes, searchText, selectedNodeTypes]);
 
-  const toggleNode = (nodeId: string) => {
+  const toggleNode = useCallback((nodeId: string) => {
     const newExpanded = new Set(expandedNodes);
     if (newExpanded.has(nodeId)) {
       newExpanded.delete(nodeId);
@@ -78,7 +78,7 @@ function NodeTree({
       newExpanded.add(nodeId);
     }
     setExpandedNodes(newExpanded);
-  };
+  }, [expandedNodes, setExpandedNodes]);
 
   const expandAll = () => {
     const allNodeIds = new Set<string>();
@@ -119,7 +119,7 @@ function NodeTree({
   }, [selectedNodeId]);
 
   // Get all visible nodes in order for keyboard navigation
-  const getVisibleNodes = (): OpcUaNode[] => {
+  const getVisibleNodes = useCallback((): OpcUaNode[] => {
     const visible: OpcUaNode[] = [];
     const traverse = (nodes: OpcUaNode[]) => {
       nodes.forEach(node => {
@@ -131,7 +131,7 @@ function NodeTree({
     };
     traverse(filteredNodes);
     return visible;
-  };
+  }, [expandedNodes, filteredNodes]);
 
   // Keyboard navigation handler
   useEffect(() => {
@@ -203,7 +203,7 @@ function NodeTree({
       container.addEventListener('keydown', handleKeyDown);
       return () => container.removeEventListener('keydown', handleKeyDown);
     }
-  }, [focusedNodeId, selectedNodeId, filteredNodes, expandedNodes, onNodeSelect]);
+  }, [focusedNodeId, selectedNodeId, filteredNodes, expandedNodes, onNodeSelect, getVisibleNodes, toggleNode]);
 
   const getNodeIcon = (nodeClass: NodeClass): string => {
     const iconMap: Record<NodeClass, string> = {

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { DataSet, Network } from 'vis-network/standalone/esm/vis-network';
+import { DataSet, Network } from 'vis-network/standalone';
 import 'vis-network/styles/vis-network.css';
 import './NodeGraph.css';
 
@@ -10,10 +10,16 @@ interface Node {
   // Add other properties as needed from your data model
 }
 
+interface Reference {
+  sourceNode: string;
+  targetNode: string;
+  referenceType: string;
+}
+
 interface ParsedNodeset {
   id: string;
   nodes: Node[];
-  references: any[]; // Define a proper type for references
+  references: Reference[];
 }
 
 interface NodeGraphProps {
@@ -60,9 +66,9 @@ const NodeGraph: React.FC<NodeGraphProps> = ({ activeNodeset, selectedNodeId, on
       };
 
       const network = new Network(graphRef.current, data, options);
-      network.on('selectNode', (params) => {
+      network.on('selectNode', (params: { nodes: Array<string | number> }) => {
         if (params.nodes.length > 0) {
-          onNodeSelect(params.nodes[0]);
+          onNodeSelect(String(params.nodes[0]));
         }
       });
       networkRef.current = network;
