@@ -5,6 +5,18 @@ import FileImport, { FileImportHandle } from './FileImport';
 import { fileImportService } from '@/services/file-import.service';
 import { NamespaceConflictStrategy } from '@/types/import.types';
 
+// Overview:
+// Tests in this file validate the behaviour of the `FileImport` UI
+// component. They focus on the component's decision-making rather
+// than rendering details: file size and format checks, XML
+// validation via `fileImportService`, duplicate detection,
+// namespace conflict strategies, parse/error handling, recent-files
+// persistence, and simple user actions (remove, recent history).
+//
+// To keep tests deterministic the suite mocks the UI library
+// (`@siemens/ix-react`) and key services (`fileImportService`). The
+// mocked `FileReader` simulates file reading in the JSDOM test
+// environment.
 // Mock Siemens IX components used in the component
 vi.mock('@siemens/ix-react', () => ({
   IxButton: (props: any) => <button {...props}>{props.children}</button>,
@@ -12,7 +24,9 @@ vi.mock('@siemens/ix-react', () => ({
   IxCardContent: (props: any) => <div {...props}>{props.children}</div>,
 }));
 
-// Helper to flush microtasks
+// Helper to flush microtasks so async effects (promises, file reads)
+// settle before assertions. Used after `act` where the component
+// performs asynchronous work such as reading/parsing files.
 const flushPromises = () => new Promise(setImmediate);
 
 describe('FileImport component', () => {
@@ -21,7 +35,10 @@ describe('FileImport component', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
 
-    // Simple mock FileReader that immediately yields provided contents
+    // Simple mock `FileReader` used by the component to read dropped
+    // files. In JSDOM the `File` object may implement `.text()`; the
+    // mock prefers that and calls `onload` to simulate successful
+    // reads. This keeps tests synchronous and deterministic.
     originalFileReader = (global as any).FileReader;
     const MockFileReader = class {
       result: any = null;

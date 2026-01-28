@@ -2,13 +2,24 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import VisualizationOptions from './VisualizationOptions';
 
+/**
+ * Unit tests for `VisualizationOptions`.
+ *
+ * These tests focus on the small presentational behavior:
+ * - rendering the nodeset selector and options
+ * - showing a compact active-nodeset summary
+ * - invoking callbacks when the user changes selection or view mode
+ */
 describe('VisualizationOptions', () => {
+  // Two simple nodeset fixtures: one has a namespace, the other none.
   const nodesets = [
     { id: 'n1', name: 'Nodeset A', namespaces: [{ index: 0, uri: 'urn:a', prefix: 'a' }], nodeCount: 5 },
     { id: 'n2', name: 'Nodeset B', namespaces: [], nodeCount: 2 },
   ];
 
   it('renders selector and active nodeset info', () => {
+    // Render the component with nodeset 'n1' active and assert the UI shows
+    // the select and the inline summary for that nodeset.
     const onNodesetSwitch = vi.fn();
     const onViewModeChange = vi.fn();
 
@@ -28,10 +39,12 @@ describe('VisualizationOptions', () => {
     expect(screen.getByRole('option', { name: /Nodeset A/i })).toBeTruthy();
     expect(screen.getByRole('option', { name: /Nodeset B/i })).toBeTruthy();
 
+    // The inline summary uses the nodeCount and namespace length values
     expect(screen.getByText(/\(5 nodes, 1 NS\)/)).toBeTruthy();
   });
 
   it('calls onNodesetSwitch when selection changes', () => {
+    // Ensure the parent callback is invoked with the new nodeset id
     const onNodesetSwitch = vi.fn();
     const onViewModeChange = vi.fn();
 
@@ -53,6 +66,7 @@ describe('VisualizationOptions', () => {
   });
 
   it('renders view mode buttons and calls onViewModeChange', () => {
+    // Verify the Tree/Graph buttons render and clicking Graph calls handler
     const onNodesetSwitch = vi.fn();
     const onViewModeChange = vi.fn();
 
@@ -75,6 +89,7 @@ describe('VisualizationOptions', () => {
     fireEvent.click(graphBtn);
     expect(onViewModeChange).toHaveBeenCalledWith('graph');
 
+    // Rerender with graph active to ensure active class toggles correctly
     rerender(
       <VisualizationOptions
         nodesetList={nodesets as any}
@@ -90,6 +105,7 @@ describe('VisualizationOptions', () => {
   });
 
   it("select's value reflects activeNodesetId (controlled select)", () => {
+    // The select is controlled by `activeNodesetId` and should reflect it
     const onNodesetSwitch = vi.fn();
     const onViewModeChange = vi.fn();
 
@@ -109,6 +125,7 @@ describe('VisualizationOptions', () => {
   });
 
   it('does not render nodeset info when activeNodesetId is not found', () => {
+    // When active id doesn't match any nodeset the info badge should be hidden
     const onNodesetSwitch = vi.fn();
     const onViewModeChange = vi.fn();
 
@@ -128,6 +145,7 @@ describe('VisualizationOptions', () => {
   });
 
   it('handles empty nodesetList gracefully (no options)', () => {
+    // When no nodesets are available the select should have zero options
     const onNodesetSwitch = vi.fn();
     const onViewModeChange = vi.fn();
 
@@ -148,6 +166,7 @@ describe('VisualizationOptions', () => {
   });
 
   it('clicking Tree button calls onViewModeChange with "tree"', () => {
+    // Clicking the Tree button should notify the parent to switch view mode
     const onNodesetSwitch = vi.fn();
     const onViewModeChange = vi.fn();
 
@@ -168,6 +187,7 @@ describe('VisualizationOptions', () => {
   });
 
   it('shows (N nodes, 0 NS) when active nodeset has zero namespaces', () => {
+    // The inline summary should reflect zero namespaces for nodeset 'n2'
     const onNodesetSwitch = vi.fn();
     const onViewModeChange = vi.fn();
 
@@ -186,6 +206,7 @@ describe('VisualizationOptions', () => {
   });
 
   it('option elements have value attributes matching nodeset ids', () => {
+    // Ensure option `value` attributes are the nodeset ids
     const onNodesetSwitch = vi.fn();
     const onViewModeChange = vi.fn();
 
