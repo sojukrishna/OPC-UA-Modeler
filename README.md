@@ -1,7 +1,7 @@
 # OPC UA Modeler
 
 A web-based OPC UA modeler built with React, TypeScript, and Siemens IX framework. 
-Currently this application allows you to import and view OPC UA nodeset XML files in an intuitive interface similar to the Siemens OPC UA Modeling Editor.
+Currently this application allows you to import and view OPC UA nodeset XML files in an intuitive interface similar to other desktop versions of OPC-UA Modeling Editor.
 
 ## Features
 
@@ -31,6 +31,9 @@ The viewer displays the following node information:
 - **Vite** - Fast build tool
 - **Siemens IX** - Enterprise UI component library
 - **xml2js** - XML parsing
+- **vis-network** - Optional graph visualization support
+- **Vitest** - Unit/integration testing
+- **ESLint** - Linting and code quality checks
 
 ## Getting Started
 
@@ -52,6 +55,12 @@ cd OPC-UA-Modeler
 npm install
 ```
 
+For a clean, reproducible install (recommended in CI), use:
+
+```bash
+npm ci
+```
+
 3. Start the development server:
 ```bash
 npm run dev
@@ -67,21 +76,78 @@ npm run dev
 4. **Search**: Use the search box to filter nodes by name or properties
 5. **Sort**: Click column headers to sort the data
 
+## Scripts
+
+- `npm run dev` - start Vite dev server
+- `npm run build` - typecheck + production build (outputs `dist/`)
+- `npm run preview` - serve the production build via Vite
+- `npm test` - run tests once (CI-friendly)
+- `npm run test:watch` - run tests in watch mode
+- `npm run test:ui` - run tests with the Vitest UI
+- `npm run test:coverage` - run tests with coverage
+- `npm run lint` - run ESLint
+
 ## Build for Production
 
 ```bash
 npm run build
 ```
 
-The built files will be in the `dist` directory.
+The built files will be in the `dist` directory (generated output; it is not committed).
+
+To preview the production build locally:
+
+```bash
+npm run preview
+```
+
+Alternatively, you can serve `dist/` using the bundled CLI (see below).
+
+## CLI (serve `dist/`)
+
+This repo ships a small Node.js CLI named `opc-ua-modeler` that serves the built site over HTTP.
+
+If you cloned the repo:
+
+```bash
+npm run build
+node ./bin/opc-ua-modeler.mjs --port 5173
+```
+
+If you installed the package globally from a tarball, you can just run:
+
+```bash
+opc-ua-modeler --help
+opc-ua-modeler --port 5173
+```
+
+Defaults: host `127.0.0.1`, port `4173`, directory `./dist`.
 
 ## Project Structure
 
 ```
-src/
-├── App.tsx                # Main application component
-└── main.tsx              # Application entry point
+.
+├── .github/workflows/ci.yml     # GitHub Actions CI (lint/test/build)
+├── bin/opc-ua-modeler.mjs       # CLI to serve the built app (dist/)
+├── src/
+│   ├── components/              # UI components
+│   ├── services/                # Nodeset parsing + file import logic
+│   ├── types/                   # Shared TypeScript types
+│   ├── App.tsx                  # Main application component
+│   └── main.tsx                 # Application entry point
+└── vite.config.ts               # Vite + Vitest config
 ```
+
+## CI
+
+GitHub Actions runs on pull requests and pushes to `main` and executes:
+
+- `npm ci`
+- `npm run lint`
+- `npm test`
+- `npm run build`
+
+Workflow file: `.github/workflows/ci.yml`.
 
 ## OPC UA Nodeset Format
 
@@ -99,6 +165,10 @@ This viewer supports OPC UA Nodeset2 XML format with the following node types:
 
 Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, testing, and PR guidelines.
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for notable changes.
+
 ## Packaging / Distribution
 
 This project can be packaged as an npm tarball (useful for sharing a reproducible release artifact):
@@ -106,6 +176,8 @@ This project can be packaged as an npm tarball (useful for sharing a reproducibl
 ```bash
 npm pack
 ```
+
+`npm pack` will run the `prepack` script first, which builds the project so the tarball includes `dist/` and the `opc-ua-modeler` CLI.
 
 This produces a `*.tgz` file which can be installed locally, for example:
 
