@@ -129,6 +129,21 @@ npm run preview
 
 Alternatively, you can serve `dist/` using the bundled CLI (see below).
 
+
+## Deploy to GitHub Pages
+
+This repo includes a GitHub Actions workflow that builds the app and deploys the `dist/` folder to GitHub Pages.
+
+1. In your GitHub repo go to **Settings → Pages**
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**
+3. Push to `main` (or run the workflow manually via **Actions → Deploy to GitHub Pages**)
+
+Your site will be available at:
+
+`https://<owner>.github.io/<repo>/`
+
+Note: GitHub Pages project sites are served from `/<repo>/`, so the workflow builds with Vite `--base=/<repo>/` to ensure assets load correctly.
+
 ## CLI (serve `dist/`)
 
 This repo ships a small Node.js CLI named `opc-ua-modeler` that serves the built site over HTTP.
